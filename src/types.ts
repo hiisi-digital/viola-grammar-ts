@@ -66,7 +66,7 @@ export interface GrammarTransforms {
   /** Normalize function body */
   normalizeBody?: (body: unknown) => unknown;
   /** Detect if node is exported */
-  isExported?: (node: unknown) => boolean;
+  isExported?: (node: unknown) => unknown;
   /** Parse import statement */
   parseImport?: (importNode: unknown) => unknown;
   /** Parse export statement */
