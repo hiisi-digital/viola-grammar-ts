@@ -91,13 +91,6 @@ export const functionQueries = `
     return_type: (type_annotation)? @function.return
     body: (statement_block) @function.body)) @function
 
-; Async function declarations
-(function_declaration
-  name: (identifier) @function.name
-  parameters: (formal_parameters) @function.params
-  return_type: (type_annotation)? @function.return
-  body: (statement_block) @function.body) @function
-
 ; Function expressions assigned to variables
 (lexical_declaration
   (variable_declarator
