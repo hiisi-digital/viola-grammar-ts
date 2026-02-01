@@ -9,32 +9,26 @@
  * @module
  */
 
-/**
- * Information about export status.
- */
-export interface ExportInfo {
-  /** Whether the node is exported */
-  exported: boolean;
-  /** Whether this is a default export */
-  isDefault?: boolean;
-  /** Export name if different from local name */
-  exportName?: string;
-}
+import type { QueryCaptures, SyntaxNode } from "@hiisi/viola/grammars";
 
 /**
- * Detect if a node is exported and gather export information.
+ * Detect if a node is exported.
  *
  * @param node - The tree-sitter node to check
- * @returns Export information
+ * @param captures - Query captures from the match
+ * @returns True if the node is exported
  *
  * @example
  * ```ts
- * isExported(functionNode);
- * // Returns: { exported: true, isDefault: false }
+ * isExported(functionNode, captures);
+ * // Returns: true
  * ```
  */
-export function isExported(node: unknown): ExportInfo {
+export function isExported(
+  node: SyntaxNode,
+  captures: QueryCaptures,
+): boolean {
   // TODO: Implement export detection
-  // For now, return not exported
-  return { exported: false };
+  // For now, return false
+  return false;
 }

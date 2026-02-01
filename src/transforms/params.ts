@@ -12,44 +12,33 @@
  * @module
  */
 
-/**
- * Parameter information extracted from TypeScript code.
- */
-export interface ParsedParam {
-  /** Parameter name or destructuring pattern */
-  name: string;
-  /** Type annotation if present */
-  type?: string;
-  /** Whether parameter is optional */
-  optional?: boolean;
-  /** Default value if present */
-  defaultValue?: string;
-  /** Whether this is a rest parameter */
-  rest?: boolean;
-  /** For destructuring: list of extracted identifiers */
-  destructured?: string[];
-}
+import type { SyntaxNode } from "@hiisi/viola/grammars";
+import type { FunctionParam } from "@hiisi/viola/data";
 
 /**
  * Parse TypeScript function parameters from formal_parameters node.
  *
  * Extracts parameter names, types, optionality, defaults, and destructuring patterns.
  *
- * @param params - The parameter list string from tree-sitter capture
+ * @param paramsNode - The parameter list node from tree-sitter
+ * @param source - Full source code string
  * @returns Array of parsed parameter information
  *
  * @example
  * ```ts
- * parseParams("(a: string, b?: number, ...rest: any[])");
+ * parseParams(paramsNode, sourceCode);
  * // Returns:
  * // [
- * //   { name: "a", type: "string" },
+ * //   { name: "a", type: "string", optional: false },
  * //   { name: "b", type: "number", optional: true },
- * //   { name: "rest", type: "any[]", rest: true }
+ * //   { name: "rest", type: "any[]", rest: true, optional: false }
  * // ]
  * ```
  */
-export function parseParams(params: unknown): ParsedParam[] {
+export function parseParams(
+  paramsNode: SyntaxNode | undefined,
+  source: string,
+): FunctionParam[] {
   // TODO: Implement parameter parsing
   // For now, return empty array
   return [];

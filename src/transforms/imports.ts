@@ -11,47 +11,45 @@
  * @module
  */
 
-/**
- * Parsed import information.
- */
-export interface ParsedImport {
-  /** Imported identifier(s) */
-  names: string[];
-  /** Local name(s) after renaming */
-  localNames: string[];
-  /** Source module path */
-  from: string;
-  /** Whether this is a type-only import */
-  typeOnly?: boolean;
-  /** Whether this is a namespace import */
-  namespace?: boolean;
-  /** Whether this is a default import */
-  isDefault?: boolean;
-}
+import type { QueryCaptures, SyntaxNode } from "@hiisi/viola/grammars";
+import type { ImportInfo } from "@hiisi/viola/data";
 
 /**
  * Parse import statement from tree-sitter node.
  *
- * @param importNode - The import statement node
- * @returns Parsed import information
+ * @param node - The import statement node
+ * @param captures - Query captures from the match
+ * @param source - Full source code string
+ * @returns Parsed import information (single or array)
  *
  * @example
  * ```ts
- * parseImport(importNode);
+ * parseImport(importNode, captures, sourceCode);
  * // Returns: {
- * //   names: ["useState"],
- * //   localNames: ["useState"],
+ * //   name: "useState",
  * //   from: "react",
- * //   typeOnly: false
+ * //   location: { file: "app.ts", line: 1, column: 0 },
+ * //   isTypeOnly: false,
+ * //   isNamespace: false
  * // }
  * ```
  */
-export function parseImport(importNode: unknown): ParsedImport {
+export function parseImport(
+  node: SyntaxNode,
+  captures: QueryCaptures,
+  source: string,
+): ImportInfo | ImportInfo[] {
   // TODO: Implement import parsing
-  // For now, return empty import
+  // For now, return minimal import info
   return {
-    names: [],
-    localNames: [],
+    name: "",
     from: "",
+    location: {
+      file: "",
+      line: node.startPosition.row + 1,
+      column: node.startPosition.column,
+    },
+    isTypeOnly: false,
+    isNamespace: false,
   };
 }

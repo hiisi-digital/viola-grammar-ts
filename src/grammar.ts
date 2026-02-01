@@ -10,7 +10,7 @@
  * @module
  */
 
-import type { GrammarDefinition } from "./types.ts";
+import type { GrammarDefinition } from "@hiisi/viola/grammars";
 import { functionQueries } from "./queries/functions.ts";
 import { stringQueries } from "./queries/strings.ts";
 import { importQueries } from "./queries/imports.ts";

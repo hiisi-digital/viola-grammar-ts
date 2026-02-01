@@ -20,9 +20,9 @@
 export { typescript } from "./src/grammar.ts";
 export { typescript as default } from "./src/grammar.ts";
 export type {
+  ExtractionQueries,
   GrammarDefinition,
   GrammarMeta,
-  GrammarQueries,
   GrammarSource,
   GrammarTransforms,
-} from "./src/types.ts";
+} from "@hiisi/viola/grammars";

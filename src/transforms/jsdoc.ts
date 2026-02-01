@@ -12,68 +12,25 @@
  * @module
  */
 
-/**
- * Parsed JSDoc parameter tag.
- */
-export interface JSDocParam {
-  /** Parameter name */
-  name: string;
-  /** Parameter type if specified */
-  type?: string;
-  /** Parameter description */
-  description: string;
-}
+import type { SyntaxNode } from "@hiisi/viola/grammars";
 
 /**
- * Parsed JSDoc information.
- */
-export interface ParsedJSDoc {
-  /** Main description */
-  description: string;
-  /** @param tags */
-  params?: JSDocParam[];
-  /** @returns description */
-  returns?: string;
-  /** @deprecated message */
-  deprecated?: string;
-  /** @example blocks */
-  examples?: string[];
-  /** @throws descriptions */
-  throws?: string[];
-  /** Other tags */
-  tags?: Record<string, string>;
-}
-
-/**
- * Parse JSDoc comment into structured data.
+ * Parse JSDoc comment into cleaned string.
  *
- * Strips comment delimiters and extracts tags with their content.
+ * Strips comment delimiters and extracts the main content.
  *
- * @param comment - The raw JSDoc comment string
- * @returns Parsed JSDoc information
+ * @param node - The JSDoc comment node
+ * @param source - Full source code string
+ * @returns Cleaned comment string
  *
  * @example
  * ```ts
- * parseDocComment(`/**
- *  * Calculate sum.
- *  * @param a - First number
- *  * @param b - Second number
- *  * @returns The sum
- *  *\/`);
- * // Returns: {
- * //   description: "Calculate sum.",
- * //   params: [
- * //     { name: "a", description: "First number" },
- * //     { name: "b", description: "Second number" }
- * //   ],
- * //   returns: "The sum"
- * // }
+ * parseDocComment(commentNode, sourceCode);
+ * // Returns: "Calculate sum.\n@param a - First number\n@param b - Second number\n@returns The sum"
  * ```
  */
-export function parseDocComment(comment: unknown): ParsedJSDoc {
+export function parseDocComment(node: SyntaxNode, source: string): string {
   // TODO: Implement JSDoc parsing
-  // For now, return minimal structure
-  return {
-    description: typeof comment === "string" ? comment : "",
-  };
+  // For now, return the node text as-is
+  return node.text;
 }
