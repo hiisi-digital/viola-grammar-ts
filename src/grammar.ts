@@ -17,6 +17,13 @@ import { importQueries } from "./queries/imports.ts";
 import { exportQueries } from "./queries/exports.ts";
 import { typeQueries } from "./queries/types.ts";
 import { docCommentQueries } from "./queries/docs.ts";
+import { parseParams } from "./transforms/params.ts";
+import { extractReturnType } from "./transforms/return-type.ts";
+import { normalizeBody } from "./transforms/normalize.ts";
+import { isExported } from "./transforms/exports.ts";
+import { parseImport } from "./transforms/imports.ts";
+import { parseTypeFields } from "./transforms/types.ts";
+import { parseDocComment } from "./transforms/jsdoc.ts";
 
 /**
  * TypeScript grammar definition for the Viola convention linter.
@@ -59,7 +66,13 @@ export const typescript: GrammarDefinition = {
     types: typeQueries,
     docComments: docCommentQueries,
   },
-  // Transforms intentionally omitted — the extractor's default capture-based
-  // extraction paths handle all basic cases correctly. Proper transforms for
-  // richer data (typed params, async detection, etc.) will be added later.
+  transforms: {
+    parseParams,
+    extractReturnType,
+    normalizeBody,
+    isExported,
+    parseImport,
+    parseTypeFields,
+    parseDocComment,
+  },
 };
