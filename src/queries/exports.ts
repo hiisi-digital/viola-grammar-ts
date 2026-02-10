@@ -41,6 +41,8 @@ export const exportQueries = `
       name: (identifier) @export.name)
     (class_declaration
       name: (type_identifier) @export.name)
+    (abstract_class_declaration
+      name: (type_identifier) @export.name)
     (lexical_declaration
       (variable_declarator
         name: (identifier) @export.name))
