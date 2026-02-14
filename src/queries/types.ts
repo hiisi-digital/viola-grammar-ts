@@ -31,7 +31,7 @@ export const typeQueries = `
   name: (type_identifier) @type.name
   type_parameters: (type_parameters)? @type.type_params
   (extends_type_clause)? @type.extends
-  body: (object_type) @type.body) @type
+  body: (interface_body) @type.body) @type
 
 ; Type alias declarations
 (type_alias_declaration
