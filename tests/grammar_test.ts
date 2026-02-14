@@ -19,6 +19,9 @@ import {
   type Parser,
 } from "@hiisi/viola/grammars";
 
+// Force Deno to download the npm package so the WASM file is available in cache
+import "tree-sitter-typescript";
+
 // =============================================================================
 // Setup — shared parser instance across tests
 // =============================================================================
