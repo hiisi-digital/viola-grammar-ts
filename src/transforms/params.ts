@@ -40,10 +40,17 @@ function parseParamNode(node: SyntaxNode): FunctionParam | null {
   switch (node.type) {
     case "required_parameter":
     case "optional_parameter": {
-      const nameNode = node.childForFieldName("pattern")
+      const patternNode = node.childForFieldName("pattern")
         ?? node.childForFieldName("name");
       const typeNode = node.childForFieldName("type");
       const valueNode = node.childForFieldName("value");
+
+      // tree-sitter-typescript 0.23.x wraps rest params as
+      // required_parameter > rest_pattern > identifier
+      const isRest = patternNode?.type === "rest_pattern";
+      const nameNode = isRest
+        ? (patternNode!.namedChildren[0] ?? patternNode)
+        : patternNode;
 
       const name = nameNode ? extractParamName(nameNode) : node.text;
       const type = typeNode?.text;
@@ -53,8 +60,8 @@ function parseParamNode(node: SyntaxNode): FunctionParam | null {
       return {
         name,
         type,
-        optional: optional || defaultValue !== undefined,
-        rest: false,
+        optional: optional || defaultValue !== undefined || isRest,
+        rest: isRest,
         defaultValue,
       };
     }
