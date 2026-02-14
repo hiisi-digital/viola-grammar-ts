@@ -88,9 +88,8 @@ export const exportQueries = `
 
 ; Re-export namespace: export * as ns from "module"
 (export_statement
-  "*"
-  "as"
-  (identifier) @export.name
+  (namespace_export
+    (identifier) @export.name)
   source: (string) @export.from) @export
 
 ; Type-only exports
