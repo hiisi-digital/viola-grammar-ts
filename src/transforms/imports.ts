@@ -33,10 +33,18 @@ export function parseImport(
     || node.children.some(c => c.type === "type");
 
   // Check for namespace import: import * as name from "mod"
+  // The query captures the identifier as @import.name, so also check the AST
+  // for a namespace_import node inside import_clause.
   const namespaceCapture = captures.get("import.namespace");
-  if (namespaceCapture) {
+  const importClauseForNs = node.children.find(c => c.type === "import_clause");
+  const namespaceImport = importClauseForNs?.children.find(c => c.type === "namespace_import");
+  if (namespaceCapture || namespaceImport) {
+    const name = namespaceCapture?.text
+      ?? namespaceImport?.namedChildren.find(c => c.type === "identifier")?.text
+      ?? captures.get("import.name")?.text
+      ?? "default";
     return {
-      name: namespaceCapture.text,
+      name,
       from,
       location,
       isTypeOnly,
