@@ -23,7 +23,7 @@ import {
 import "tree-sitter-typescript";
 
 // =============================================================================
-// Setup — shared parser instance across tests
+// Setup: shared parser instance across tests
 // =============================================================================
 
 let parser: Parser;
@@ -57,7 +57,7 @@ async function query(querySource: string, source: string) {
 }
 
 // =============================================================================
-// Export Extraction — the critical area where async/abstract bugs lived
+// Export Extraction: the critical area where async/abstract bugs lived
 // =============================================================================
 
 Deno.test("exports - export function extracts function name", async () => {
@@ -523,7 +523,7 @@ interface Repository<T> {
 });
 
 // =============================================================================
-// Query Syntax Validation — queries compile without error
+// Query Syntax Validation: queries compile without error
 // =============================================================================
 
 Deno.test("queries - function query compiles and produces matches", async () => {
@@ -563,7 +563,7 @@ Deno.test("queries - type query compiles and produces matches", async () => {
 
 Deno.test("queries - string query compiles", async () => {
   assertExists(typescript.queries.strings, "Should have string query");
-  // Just verify it compiles — run against a file with strings
+  // Just verify it compiles. Run against a file with strings
   const matches = await query(
     typescript.queries.strings!,
     `const msg = "hello world";`,
@@ -582,7 +582,7 @@ Deno.test("queries - docComment query compiles", async () => {
 });
 
 // =============================================================================
-// isExported Transform — verifies export detection via tree walking
+// isExported Transform: verifies export detection via tree walking
 // =============================================================================
 
 Deno.test("isExported - exported function detected", async () => {
@@ -612,7 +612,7 @@ const internal = () => { return "nope"; };
 });
 
 // =============================================================================
-// Full Integration — realistic file extraction
+// Full Integration: realistic file extraction
 // =============================================================================
 
 Deno.test("integration - realistic TypeScript module extraction", async () => {
@@ -656,7 +656,7 @@ export enum LogLevel {
 
   const data = await extract(source, "src/server.ts");
 
-  // Exports — verify all expected exports, no keyword leakage
+  // Exports: verify all expected exports, no keyword leakage
   const exportNames = data.exports.map((e) => e.name);
   for (const expected of [
     "AppConfig",

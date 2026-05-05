@@ -80,7 +80,7 @@ function parseParamNode(node: SyntaxNode): FunctionParam | null {
     }
 
     default:
-      // Unknown parameter form — extract name from text
+      // Unknown parameter form: extract name from text
       return {
         name: node.text.split(":")[0]?.split("=")[0]?.trim().replace(/^\.\.\.|[?]$/g, "") ?? node.text,
         optional: node.text.includes("?") || node.text.includes("="),
