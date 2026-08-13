@@ -1,10 +1,10 @@
 # @hiisi/viola-grammar-ts
 
-TypeScript and JavaScript grammar package for the [Viola](https://github.com/hiisi-digital/viola) convention linter.
+TypeScript grammar package for the [Viola](https://github.com/hiisi-digital/viola) convention linter.
 
 ## Overview
 
-This package provides tree-sitter based parsing and extraction for TypeScript and JavaScript files. It extracts structured data (functions, types, imports, exports, strings) that Viola linters can analyze.
+This package provides tree-sitter based parsing and extraction for TypeScript files (`.ts`, `.tsx`, `.mts`, `.cts`). It extracts structured data (functions, types, imports, exports, strings) that Viola linters can analyze. When a separate JavaScript grammar is registered, Viola's grammar relationships control how the two interact on shared files.
 
 ## Installation
 
@@ -15,22 +15,14 @@ deno add jsr:@hiisi/viola-grammar-ts
 ## Usage
 
 ```typescript
-import { viola, grammar, when, report } from "@hiisi/viola";
+import { viola, when, report } from "@hiisi/viola";
 import typescript from "@hiisi/viola-grammar-ts";
-import javascript from "@hiisi/viola-grammar-js";
 
 export default viola()
-  // Register grammars
+  // register the grammar
   .add(typescript).as("ts")
-  .add(javascript).as("js")
-  
-  // TypeScript overrides JavaScript for .ts/.tsx files
-  .rule(grammar("ts").overrides("js"), when.in("*.ts", "*.tsx"))
-  
-  // TypeScript supplements JavaScript for .js/.jsx files (JSDoc types)
-  .rule(grammar("ts").supplements("js"), when.in("*.js", "*.jsx"))
-  
-  // Your linter rules
+
+  // your linter rules
   .rule(report.error, when.in("src/**"));
 ```
 
@@ -48,27 +40,27 @@ export default viola()
 All function forms are extracted:
 
 ```typescript
-// Function declarations
+// function declarations
 function foo(a: string, b?: number): void { }
 
-// Arrow functions
+// arrow functions
 const bar = (x: number) => x * 2;
 
-// Methods
+// methods
 class MyClass {
   method(arg: string): boolean { }
 }
 
-// Async/Generator
-async function* generator() { yield 1; }
+// generator declarations
+function* generator() { yield 1; }
 ```
 
 Captured data:
 - Name
-- Parameters (with types, defaults, rest, destructuring)
+- Parameters (with types, optionality, defaults, rest, destructuring)
 - Return type
 - Body (raw and normalized)
-- Flags: async, generator, exported, default export
+- Exported flag
 
 ### Types
 
@@ -85,10 +77,9 @@ enum Status { Active, Inactive }
 
 Captured data:
 - Name
-- Kind (interface, type, enum)
-- Fields with types
-- Type parameters
-- Extends clause
+- Fields with types (properties, method signatures, index signatures, enum members)
+- Body (raw and normalized)
+- Exported flag
 
 ### Imports
 
@@ -100,9 +91,8 @@ import * as ns from "module";       // namespace
 import type { T } from "module";    // type-only
 ```
 
-Captured data:
-- Imported name
-- Local name (if renamed)
+Captured data (one entry per imported name):
+- Name (the local alias when renamed)
 - Source module
 - Type-only flag
 - Namespace flag
@@ -121,10 +111,8 @@ export function fn() {}
 
 Captured data:
 - Exported name
-- Local name (if renamed)
-- Kind (function, type, class, etc.)
 - Source module (for re-exports)
-- Type-only flag
+- Type-only flag (for `export type { }` statements)
 
 ### Strings
 
@@ -135,8 +123,7 @@ const template = `Hello, ${name}!`;
 ```
 
 Captured data:
-- Value
-- Quote style
+- Value (quotes stripped)
 - Template flag
 
 ### JSDoc
@@ -147,19 +134,23 @@ Captured data:
  * @param a - First number
  * @param b - Second number
  * @returns The sum
- * @deprecated Use add() instead
  */
 function sum(a: number, b: number): number { }
 ```
 
-Extracted tags:
-- Description
-- @param
-- @returns
-- @deprecated
-- @example
+Comment nodes are matched by the doc-comment query, and the `parseDocComment` transform strips the `/** */` markers and leading asterisks, yielding the comment as plain text. Tags such as `@param` and `@returns` stay in the text; they are not parsed into structured fields.
 
 ## Grammar Relationships
+
+When a separate JavaScript grammar is also registered (under the alias `js` here), Viola's `grammar()` rules control how the two interact per file pattern:
+
+```typescript
+// typescript overrides javascript for .ts/.tsx files
+.rule(grammar("ts").overrides("js"), when.in("*.ts", "*.tsx"))
+
+// typescript supplements javascript for .js/.jsx files (jsdoc types)
+.rule(grammar("ts").supplements("js"), when.in("*.js", "*.jsx"))
+```
 
 ### Override Semantics
 
@@ -178,7 +169,7 @@ When TypeScript **supplements** JavaScript (for `.js`/`.jsx` files):
 ## Requirements
 
 - Deno 2.0+
-- `@hiisi/viola` ^0.1
+- `@hiisi/viola` ^0.3
 
 ## License
 
