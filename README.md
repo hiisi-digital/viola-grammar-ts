@@ -138,7 +138,7 @@ Captured data:
 function sum(a: number, b: number): number { }
 ```
 
-Comment nodes are matched by the doc-comment query, and the `parseDocComment` transform strips the `/** */` markers and leading asterisks, yielding the comment as plain text. Tags such as `@param` and `@returns` stay in the text; they are not parsed into structured fields.
+The grammar declares a doc-comment query (`(comment) @doc.content`) and a `parseDocComment` transform that strips the `/** */` markers and leading asterisks. Viola does not run either one: its extraction pass produces functions, types, imports, exports and strings only, so no doc-comment data reaches a linter. The query and the transform are declared against a pipeline stage that does not exist yet.
 
 ## Grammar Relationships
 
