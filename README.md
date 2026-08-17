@@ -145,25 +145,24 @@ The grammar declares a doc-comment query (`(comment) @doc.content`) and a `parse
 When a separate JavaScript grammar is also registered (under the alias `js` here), Viola's `grammar()` rules control how the two interact per file pattern:
 
 ```typescript
-// typescript overrides javascript for .ts/.tsx files
+// typescript overrides javascript where both claim the file
 .rule(grammar("ts").overrides("js"), when.in("*.ts", "*.tsx"))
-
-// typescript supplements javascript for .js/.jsx files (jsdoc types)
-.rule(grammar("ts").supplements("js"), when.in("*.js", "*.jsx"))
 ```
+
+A relationship applies only to a file both grammars already match. Viola resolves the matching set from each grammar's registered extensions first, and skips any relationship whose primary or secondary is absent from that set. This package registers `.ts`, `.tsx`, `.mts` and `.cts` and nothing else, so a relationship changes the outcome only where the JavaScript grammar claims those same extensions. On a `.js` or `.jsx` file this grammar is not in the matching set at all, and a rule naming it there has no effect.
 
 ### Override Semantics
 
-When TypeScript **overrides** JavaScript (for `.ts`/`.tsx` files):
+When TypeScript **overrides** JavaScript on a file both match:
 - Only the TypeScript grammar runs
 - Full type information is extracted
 - JavaScript grammar is suppressed
 
 ### Supplement Semantics
 
-When TypeScript **supplements** JavaScript (for `.js`/`.jsx` files):
+When TypeScript **supplements** JavaScript on a file both match:
 - JavaScript grammar runs first
-- TypeScript grammar fills gaps (e.g., JSDoc type annotations)
+- TypeScript grammar fills gaps
 - Results are merged, TypeScript data only where JS didn't capture
 
 ## Requirements
