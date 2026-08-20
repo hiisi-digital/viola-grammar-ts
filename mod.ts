@@ -1,8 +1,8 @@
 /**
  * @hiisi/viola-grammar-ts
  *
- * TypeScript and JavaScript grammar package for the Viola convention linter.
- * Provides tree-sitter based parsing and extraction for TS/TSX/JS/JSX files.
+ * TypeScript grammar package for the Viola convention linter.
+ * Provides tree-sitter based parsing and extraction for .ts, .tsx, .mts and .cts files.
  *
  * @example
  * ```ts
