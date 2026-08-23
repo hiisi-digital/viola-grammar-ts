@@ -26,8 +26,13 @@ export const stringQueries = `
 (string
   (string_fragment)? @string.value) @string
 
-; Template literals
-(template_string) @string.value @string.template
+; Template literals.
+;
+; The node is captured for structure and its fragment for the value, and only
+; the fragment carries @string.value. Capturing both as the value matched the
+; same template twice, so every template literal in a codebase was reported as
+; appearing twice as often as it does, at the same line number.
+(template_string) @string.template
 
 ; Raw template string content
 (template_string

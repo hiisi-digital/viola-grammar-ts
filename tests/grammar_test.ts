@@ -563,13 +563,41 @@ Deno.test("queries - type query compiles and produces matches", async () => {
 
 Deno.test("queries - string query compiles", async () => {
   assertExists(typescript.queries.strings, "Should have string query");
-  // Just verify it compiles. Run against a file with strings
   const matches = await query(
     typescript.queries.strings!,
     `const msg = "hello world";`,
   );
-  // String query should at least compile without error
-  assertEquals(matches.length >= 0, true);
+  // `>= 0` was the old assertion here and it cannot fail, so it measured
+  // nothing. A quoted string is one value.
+  assertEquals(valuesOf(matches), ["hello world"]);
+});
+
+/** Every `@string.value` capture, in source order. */
+function valuesOf(matches: Awaited<ReturnType<typeof query>>): string[] {
+  return matches
+    .map((m) => m.get("string.value")?.text)
+    .filter((t): t is string => t !== undefined);
+}
+
+Deno.test("queries - a template literal is one string, not two", async () => {
+  // Two of the three patterns used to capture `@string.value` on the same
+  // template: once for the whole node and once for its fragment. Every
+  // template literal in a codebase was therefore reported as appearing twice
+  // as often as it does, at one and the same line, and `duplicate-strings`
+  // raised a duplicate for a string written exactly once.
+  const matches = await query(
+    typescript.queries.strings!,
+    "const msg = `only once`;",
+  );
+  assertEquals(valuesOf(matches), ["only once"]);
+});
+
+Deno.test("queries - an interpolated template yields its fragments once each", async () => {
+  const matches = await query(
+    typescript.queries.strings!,
+    "const msg = `before ${x} after`;",
+  );
+  assertEquals(valuesOf(matches), ["before ", " after"]);
 });
 
 Deno.test("queries - docComment query compiles", async () => {
