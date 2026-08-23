@@ -32,6 +32,31 @@ export function parseImport(
   const isTypeOnly = captures.has("import.type_only")
     || node.children.some(c => c.type === "type");
 
+  // A re-export is an import for every purpose a lint cares about.
+  //
+  // `export { thing } from "./mod.ts"` names a symbol and pulls it from another
+  // module, which is exactly what an import does, and a barrel re-exporting a
+  // package's surface is the strongest evidence a symbol is public. Everything
+  // below reads `import_clause` and `named_imports`, which exist only under an
+  // `import_statement`, so an `export_statement` fell through to the default
+  // branch and produced a single import named "default".
+  //
+  // The visible symptom was the orphaned-code lint reporting every re-exported
+  // symbol as never imported, which in a package built around a `mod.ts` is
+  // every public symbol it has.
+  if (node.type === "export_statement") {
+    const clause = node.children.find((c) => c.type === "export_clause");
+    const specifiers = clause?.namedChildren.filter((c) => c.type === "export_specifier") ?? [];
+    const named = specifiers
+      .map((spec) => spec.childForFieldName("name")?.text)
+      .filter((name): name is string => name !== undefined && name.length > 0);
+
+    // `export * from "..."` names nothing but still uses the module.
+    return named.length > 0
+      ? named.map((name) => ({ name, from, location, isTypeOnly, isNamespace: false }))
+      : { name: "*", from, location, isTypeOnly, isNamespace: true };
+  }
+
   // Check for namespace import: import * as name from "mod"
   // The query captures the identifier as @import.name, so also check the AST
   // for a namespace_import node inside import_clause.

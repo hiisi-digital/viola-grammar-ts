@@ -55,4 +55,21 @@ export const importQueries = `
 ; Side-effect imports
 (import_statement
   source: (string) @import.from) @import
+
+; Re-exports, which are imports for every purpose a lint cares about.
+; \`export { thing } from "./mod.ts"\` names a symbol and pulls it from another
+; module, and a barrel that re-exports its package's surface is the strongest
+; evidence a symbol is public. Without this the orphaned-code lint reported
+; every re-exported symbol as never imported, which is every public symbol in
+; a package built around a \`mod.ts\`.
+(export_statement
+  (export_clause
+    (export_specifier
+      name: (identifier) @import.name
+      alias: (identifier)? @import.alias))
+  source: (string) @import.from) @import
+
+; \`export * from "./mod.ts"\`, which names no symbol but still uses the module.
+(export_statement
+  source: (string) @import.from) @import
 `;
