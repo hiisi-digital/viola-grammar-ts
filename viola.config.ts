@@ -9,7 +9,7 @@
  */
 
 import defaultLints from "@hiisi/viola-default-lints";
-import typescript from "@hiisi/viola-grammar-ts";
+import typescript from "./mod.ts";
 import { report, viola, when } from "@hiisi/viola";
 
 export default viola()
