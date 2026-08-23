@@ -11,6 +11,11 @@
  * @module
  */
 
+import { IDENTIFIER } from "./nodes.ts";
+
+/** What an import with no name of its own is called. */
+const DEFAULT_IMPORT = "default";
+
 import type { QueryCaptures, SyntaxNode } from "@hiisi/viola/grammars";
 import type { ImportInfo, SourceLocation } from "@hiisi/viola/data";
 
@@ -29,8 +34,8 @@ export function parseImport(
   const from = fromCapture ? stripQuotes(fromCapture.text) : "";
   const location = nodeToLocation(node);
 
-  const isTypeOnly = captures.has("import.type_only")
-    || node.children.some(c => c.type === "type");
+  const isTypeOnly = captures.has("import.type_only") ||
+    node.children.some((c) => c.type === "type");
 
   // A re-export is an import for every purpose a lint cares about.
   //
@@ -46,14 +51,22 @@ export function parseImport(
   // every public symbol it has.
   if (node.type === "export_statement") {
     const clause = node.children.find((c) => c.type === "export_clause");
-    const specifiers = clause?.namedChildren.filter((c) => c.type === "export_specifier") ?? [];
+    const specifiers = clause?.namedChildren.filter((c) =>
+      c.type === "export_specifier"
+    ) ?? [];
     const named = specifiers
       .map((spec) => spec.childForFieldName("name")?.text)
       .filter((name): name is string => name !== undefined && name.length > 0);
 
     // `export * from "..."` names nothing but still uses the module.
     return named.length > 0
-      ? named.map((name) => ({ name, from, location, isTypeOnly, isNamespace: false }))
+      ? named.map((name) => ({
+        name,
+        from,
+        location,
+        isTypeOnly,
+        isNamespace: false,
+      }))
       : { name: "*", from, location, isTypeOnly, isNamespace: true };
   }
 
@@ -61,13 +74,17 @@ export function parseImport(
   // The query captures the identifier as @import.name, so also check the AST
   // for a namespace_import node inside import_clause.
   const namespaceCapture = captures.get("import.namespace");
-  const importClauseForNs = node.children.find(c => c.type === "import_clause");
-  const namespaceImport = importClauseForNs?.children.find(c => c.type === "namespace_import");
+  const importClauseForNs = node.children.find((c) =>
+    c.type === "import_clause"
+  );
+  const namespaceImport = importClauseForNs?.children.find((c) =>
+    c.type === "namespace_import"
+  );
   if (namespaceCapture || namespaceImport) {
-    const name = namespaceCapture?.text
-      ?? namespaceImport?.namedChildren.find(c => c.type === "identifier")?.text
-      ?? captures.get("import.name")?.text
-      ?? "default";
+    const name = namespaceCapture?.text ??
+      namespaceImport?.namedChildren.find((c) => c.type === IDENTIFIER)?.text ??
+      captures.get("import.name")?.text ??
+      DEFAULT_IMPORT;
     return {
       name,
       from,
@@ -78,8 +95,10 @@ export function parseImport(
   }
 
   // Check for named imports: import { a, b } from "mod"
-  const importClause = node.children.find(c => c.type === "import_clause");
-  const namedImports = importClause?.children.find(c => c.type === "named_imports");
+  const importClause = node.children.find((c) => c.type === "import_clause");
+  const namedImports = importClause?.children.find((c) =>
+    c.type === "named_imports"
+  );
 
   if (namedImports) {
     const results: ImportInfo[] = [];
@@ -103,7 +122,7 @@ export function parseImport(
   // Default import or single name capture
   const nameCapture = captures.get("import.name");
   return {
-    name: nameCapture?.text ?? "default",
+    name: nameCapture?.text ?? DEFAULT_IMPORT,
     from,
     location,
     isTypeOnly,
@@ -112,7 +131,10 @@ export function parseImport(
 }
 
 function stripQuotes(s: string): string {
-  if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
+  if (
+    (s.startsWith('"') && s.endsWith('"')) ||
+    (s.startsWith("'") && s.endsWith("'"))
+  ) {
     return s.slice(1, -1);
   }
   return s;

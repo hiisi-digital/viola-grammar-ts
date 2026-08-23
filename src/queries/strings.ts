@@ -28,13 +28,16 @@ export const stringQueries = `
 
 ; Template literals.
 ;
-; The node is captured for structure and its fragment for the value, and only
-; the fragment carries @string.value. Capturing both as the value matched the
-; same template twice, so every template literal in a codebase was reported as
+; Only the fragment carries @string.value. Capturing the node as the value too
+; matched the same template twice, so every template literal was reported as
 ; appearing twice as often as it does, at the same line number.
-(template_string) @string.template
-
-; Raw template string content
+;
+; The template marker sits on this same pattern rather than on a pattern of its
+; own. Split across two patterns it arrived in a different match from the
+; fragment, so a fragment came back marked as not a template and could not be
+; told apart from an ordinary string. A leading fragment such as Found then
+; read as a repeated literal across every message starting that way, and the
+; remedy offered, a shared constant, is not one for half a sentence.
 (template_string
-  (string_fragment)? @string.value)
+  (string_fragment)? @string.value) @string.template
 `;

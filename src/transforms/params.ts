@@ -11,6 +11,8 @@
  * @module
  */
 
+import { collectNamed, IDENTIFIER, PATTERN_FIELD } from "./nodes.ts";
+
 import type { SyntaxNode } from "@hiisi/viola/grammars";
 import type { FunctionParam } from "@hiisi/viola/data";
 
@@ -24,24 +26,15 @@ export function parseParams(
   paramsNode: SyntaxNode | undefined,
   _source: string,
 ): FunctionParam[] {
-  if (!paramsNode) return [];
-
-  const params: FunctionParam[] = [];
-
-  for (const child of paramsNode.namedChildren) {
-    const param = parseParamNode(child);
-    if (param) params.push(param);
-  }
-
-  return params;
+  return collectNamed(paramsNode, parseParamNode);
 }
 
 function parseParamNode(node: SyntaxNode): FunctionParam | null {
   switch (node.type) {
     case "required_parameter":
     case "optional_parameter": {
-      const patternNode = node.childForFieldName("pattern")
-        ?? node.childForFieldName("name");
+      const patternNode = node.childForFieldName(PATTERN_FIELD) ??
+        node.childForFieldName("name");
       const typeNode = node.childForFieldName("type");
       const valueNode = node.childForFieldName("value");
 
@@ -67,12 +60,14 @@ function parseParamNode(node: SyntaxNode): FunctionParam | null {
     }
 
     case "rest_parameter": {
-      const nameNode = node.childForFieldName("pattern")
-        ?? node.childForFieldName("name");
+      const nameNode = node.childForFieldName(PATTERN_FIELD) ??
+        node.childForFieldName("name");
       const typeNode = node.childForFieldName("type");
 
       return {
-        name: nameNode ? extractParamName(nameNode) : node.text.replace(/^\.\.\./, ""),
+        name: nameNode
+          ? extractParamName(nameNode)
+          : node.text.replace(/^\.\.\./, ""),
         type: typeNode?.text,
         optional: true,
         rest: true,
@@ -82,7 +77,10 @@ function parseParamNode(node: SyntaxNode): FunctionParam | null {
     default:
       // Unknown parameter form: extract name from text
       return {
-        name: node.text.split(":")[0]?.split("=")[0]?.trim().replace(/^\.\.\.|[?]$/g, "") ?? node.text,
+        name: node.text.split(":")[0]?.split("=")[0]?.trim().replace(
+          /^\.\.\.|[?]$/g,
+          "",
+        ) ?? node.text,
         optional: node.text.includes("?") || node.text.includes("="),
         rest: node.text.startsWith("..."),
       };
@@ -91,12 +89,16 @@ function parseParamNode(node: SyntaxNode): FunctionParam | null {
 
 function extractParamName(node: SyntaxNode): string {
   switch (node.type) {
-    case "identifier":
+    case IDENTIFIER:
       return node.text;
     case "object_pattern":
-      return `{${node.namedChildren.map(c => c.childForFieldName("name")?.text ?? c.text).join(", ")}}`;
+      return `{${
+        node.namedChildren.map((c) =>
+          c.childForFieldName("name")?.text ?? c.text
+        ).join(", ")
+      }}`;
     case "array_pattern":
-      return `[${node.namedChildren.map(c => c.text).join(", ")}]`;
+      return `[${node.namedChildren.map((c) => c.text).join(", ")}]`;
     default:
       return node.text;
   }

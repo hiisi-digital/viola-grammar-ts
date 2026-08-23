@@ -2,7 +2,9 @@
 
 ## Overview
 
-`@hiisi/viola-grammar-ts` is a grammar package for the Viola convention linter that enables parsing and extraction of structured data from TypeScript and JavaScript files using tree-sitter.
+`@hiisi/viola-grammar-ts` is a grammar package for the Viola convention linter
+that enables parsing and extraction of structured data from TypeScript and
+JavaScript files using tree-sitter.
 
 ## Purpose
 
@@ -10,7 +12,8 @@ This package provides:
 
 1. **Tree-sitter grammar configuration** for TypeScript/TSX/JavaScript/JSX
 2. **Extraction queries** in S-expression format for capturing code elements
-3. **Transform functions** for complex extraction logic that queries alone can't handle
+3. **Transform functions** for complex extraction logic that queries alone can't
+   handle
 
 ## Architecture
 
@@ -72,19 +75,24 @@ Must handle all TypeScript function forms:
 
 ```typescript
 // Function declaration
-function foo(a: string, b?: number): void { }
+function foo(a: string, b?: number): void {}
 
 // Arrow function
 const bar = (x: number) => x * 2;
 
 // Method
-class C { method() { } }
+class C {
+  method() {}
+}
 
 // Async/generator
-async function* gen() { yield 1; }
+async function* gen() {
+  yield 1;
+}
 ```
 
 Query patterns:
+
 - `function_declaration`
 - `arrow_function`
 - `method_definition`
@@ -102,10 +110,11 @@ function complex(
   ...rest: string[],
   { destructured }: { destructured: boolean },
   [arrDestructured]: [number],
-) { }
+) {}
 ```
 
 The `parseParams` transform must handle:
+
 - Simple parameters
 - Optional parameters (`?`)
 - Default values (`= value`)
@@ -119,12 +128,12 @@ The `parseParams` transform must handle:
 TypeScript import forms:
 
 ```typescript
-import foo from "module";           // default
-import { bar } from "module";       // named
-import { baz as qux } from "mod";   // renamed
-import * as ns from "module";       // namespace
-import type { T } from "module";    // type-only
-import { type T } from "module";    // inline type
+import foo from "module"; // default
+import { bar } from "module"; // named
+import { baz as qux } from "mod"; // renamed
+import * as ns from "module"; // namespace
+import type { T } from "module"; // type-only
+import { type T } from "module"; // inline type
 ```
 
 ### Export Extraction
@@ -132,14 +141,14 @@ import { type T } from "module";    // inline type
 TypeScript export forms:
 
 ```typescript
-export default foo;                  // default
-export { bar };                      // named
-export { baz as qux };              // renamed
-export { x } from "module";          // re-export
-export * from "module";              // re-export all
-export type { T };                   // type-only
-export function fn() {}              // declaration
-export class C {}                    // declaration
+export default foo; // default
+export { bar }; // named
+export { baz as qux }; // renamed
+export { x } from "module"; // re-export
+export * from "module"; // re-export all
+export type { T }; // type-only
+export function fn() {} // declaration
+export class C {} // declaration
 ```
 
 ### Type Extraction
@@ -147,9 +156,16 @@ export class C {}                    // declaration
 TypeScript type declarations:
 
 ```typescript
-interface Foo { a: string; b?: number; }
+interface Foo {
+  a: string;
+  b?: number;
+}
 type Bar = { x: number } | null;
-enum Color { Red, Green, Blue }
+enum Color {
+  Red,
+  Green,
+  Blue,
+}
 ```
 
 ### JSDoc Parsing
@@ -163,10 +179,11 @@ Extract JSDoc with tags:
  * @returns The result
  * @deprecated Use newFn instead
  */
-function fn(x: number): number { }
+function fn(x: number): number {}
 ```
 
 The `parseDocComment` transform should extract:
+
 - Description text
 - @param tags with names and descriptions
 - @returns description
@@ -218,7 +235,7 @@ viola-grammar-ts/
 ## Usage
 
 ```typescript
-import { viola, grammar, when } from "@hiisi/viola";
+import { grammar, viola, when } from "@hiisi/viola";
 import typescript from "@hiisi/viola-grammar-ts";
 import javascript from "@hiisi/viola-grammar-js";
 
@@ -234,9 +251,11 @@ export default viola()
 TypeScript is a superset of JavaScript. The relationship is:
 
 - For `.ts`/`.tsx` files: TypeScript grammar **overrides** JavaScript
-- For `.js`/`.jsx` files: TypeScript grammar **supplements** JavaScript (extracts JSDoc types)
+- For `.js`/`.jsx` files: TypeScript grammar **supplements** JavaScript
+  (extracts JSDoc types)
 
-This allows JSDoc-typed JavaScript to benefit from type extraction while native TypeScript uses the full parser.
+This allows JSDoc-typed JavaScript to benefit from type extraction while native
+TypeScript uses the full parser.
 
 ## Testing Strategy
 

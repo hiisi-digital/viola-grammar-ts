@@ -2,7 +2,7 @@
  * Test fixture: String literals
  */
 
-const single = 'single quotes';
+const single = "single quotes";
 const double = "double quotes";
 const template = `template literal`;
 const templateWithExpr = `Hello, ${name}!`;
