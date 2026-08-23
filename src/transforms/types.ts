@@ -8,6 +8,11 @@
  * @module
  */
 
+/** What a field's type is when the source did not annotate one. */
+const UNANNOTATED = "unknown";
+
+import { collectNamed, READONLY_KEYWORD } from "./nodes.ts";
+
 import type { SyntaxNode } from "@hiisi/viola/grammars";
 import type { TypeField } from "@hiisi/viola/data";
 
@@ -21,16 +26,7 @@ export function parseTypeFields(
   bodyNode: SyntaxNode | undefined,
   _source: string,
 ): TypeField[] {
-  if (!bodyNode) return [];
-
-  const fields: TypeField[] = [];
-
-  for (const child of bodyNode.namedChildren) {
-    const field = parseFieldNode(child);
-    if (field) fields.push(field);
-  }
-
-  return fields;
+  return collectNamed(bodyNode, parseFieldNode);
 }
 
 function parseFieldNode(node: SyntaxNode): TypeField | null {
@@ -38,21 +34,23 @@ function parseFieldNode(node: SyntaxNode): TypeField | null {
     case "property_signature": {
       const nameNode = node.childForFieldName("name");
       const typeNode = node.childForFieldName("type");
-      const optional = node.children.some(c => c.type === "?" || c.text === "?");
+      const optional = node.children.some((c) =>
+        c.type === "?" || c.text === "?"
+      );
       return {
         name: nameNode?.text ?? node.text.split(/[?:]/)[0]!.trim(),
-        type: typeNode?.text?.replace(/^\s*:\s*/, "").trim() ?? "unknown",
+        type: typeNode?.text?.replace(/^\s*:\s*/, "").trim() ?? UNANNOTATED,
         optional,
-        readonly: node.children.some(c => c.text === "readonly"),
+        readonly: node.children.some((c) => c.text === READONLY_KEYWORD),
       };
     }
 
     case "method_signature": {
       const nameNode = node.childForFieldName("name");
       return {
-        name: nameNode?.text ?? "unknown",
+        name: nameNode?.text ?? UNANNOTATED,
         type: "method",
-        optional: node.children.some(c => c.type === "?" || c.text === "?"),
+        optional: node.children.some((c) => c.type === "?" || c.text === "?"),
         readonly: false,
       };
     }
@@ -62,7 +60,7 @@ function parseFieldNode(node: SyntaxNode): TypeField | null {
         name: "[index]",
         type: node.text,
         optional: false,
-        readonly: node.children.some(c => c.text === "readonly"),
+        readonly: node.children.some((c) => c.text === READONLY_KEYWORD),
       };
     }
 
@@ -71,7 +69,7 @@ function parseFieldNode(node: SyntaxNode): TypeField | null {
       const valueNode = node.childForFieldName("value");
       return {
         name: nameNode?.text ?? node.text.split("=")[0]!.trim(),
-        type: valueNode?.text ?? "unknown",
+        type: valueNode?.text ?? UNANNOTATED,
         optional: false,
         readonly: true,
       };

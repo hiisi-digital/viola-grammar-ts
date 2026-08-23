@@ -73,7 +73,25 @@ export const functionQueries = `
         (_) @function.body
       ]))) @function
 
-; Method definitions in classes
+; Method definitions inside a named class.
+;
+; Matched through the class so the class name comes with the method. A method
+; called get or build or has is named for what it does to its own type, and
+; without the owner every class with a get looks like a duplicate of every
+; other one.
+(class_declaration
+  name: (type_identifier) @function.parent
+  body: (class_body
+    (method_definition
+      name: [
+        (property_identifier) @function.name
+        (computed_property_name (string) @function.name)
+      ]
+      parameters: (formal_parameters) @function.params
+      return_type: (type_annotation)? @function.return
+      body: (statement_block) @function.body) @function)) @function.method
+
+; Method definitions anywhere else: an object literal, an anonymous class.
 (method_definition
   name: [
     (property_identifier) @function.name
@@ -81,7 +99,7 @@ export const functionQueries = `
   ]
   parameters: (formal_parameters) @function.params
   return_type: (type_annotation)? @function.return
-  body: (statement_block) @function.body) @function
+  body: (statement_block) @function.body) @function @function.method
 
 ; Object method shorthand
 (pair

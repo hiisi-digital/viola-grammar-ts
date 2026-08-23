@@ -13,10 +13,10 @@ import {
   createParser,
   extractFileData,
   initTreeSitter,
-  loadGrammar,
-  queryAll,
   type Language,
+  loadGrammar,
   type Parser,
+  queryAll,
 } from "@hiisi/viola/grammars";
 
 // Force Deno to download the npm package so the WASM file is available in cache
@@ -195,15 +195,17 @@ export function syncFn() { return 1; }
   const names = data.exports.map((e) => e.name);
 
   // All real names present
-  for (const expected of [
-    "fetchData",
-    "Base",
-    "VERSION",
-    "Options",
-    "ID",
-    "LogLevel",
-    "syncFn",
-  ]) {
+  for (
+    const expected of [
+      "fetchData",
+      "Base",
+      "VERSION",
+      "Options",
+      "ID",
+      "LogLevel",
+      "syncFn",
+    ]
+  ) {
     assertEquals(names.includes(expected), true, `Should export '${expected}'`);
   }
 
@@ -383,7 +385,9 @@ Deno.test("return type - Promise return type", async () => {
 });
 
 Deno.test("return type - void", async () => {
-  const data = await extract(`function log(msg: string): void { console.log(msg); }`);
+  const data = await extract(
+    `function log(msg: string): void { console.log(msg); }`,
+  );
   assertExists(data.functions[0]!.returnType);
   assertEquals(data.functions[0]!.returnType!.includes("void"), true);
 });
@@ -488,7 +492,9 @@ interface User {
 });
 
 Deno.test("types - type alias", async () => {
-  const data = await extract(`type Result<T> = { ok: true; value: T } | { ok: false; error: Error };`);
+  const data = await extract(
+    `type Result<T> = { ok: true; value: T } | { ok: false; error: Error };`,
+  );
   assertEquals(data.types.length, 1);
   assertEquals(data.types[0]!.name, "Result");
 });
@@ -531,7 +537,11 @@ Deno.test("queries - function query compiles and produces matches", async () => 
     typescript.queries.functions,
     `function hello() { return 1; }`,
   );
-  assertEquals(matches.length > 0, true, "Function query should produce matches");
+  assertEquals(
+    matches.length > 0,
+    true,
+    "Function query should produce matches",
+  );
   const name = matches[0]!.get("function.name");
   assertExists(name);
   assertEquals(name.text, "hello");
@@ -623,7 +633,11 @@ function hidden() { return 2; }
   assertExists(visible);
   assertExists(hidden);
   assertEquals(visible.isExported, true, "'visible' should be marked exported");
-  assertEquals(hidden.isExported, false, "'hidden' should NOT be marked exported");
+  assertEquals(
+    hidden.isExported,
+    false,
+    "'hidden' should NOT be marked exported",
+  );
 });
 
 Deno.test("isExported - exported const arrow function detected", async () => {
@@ -686,14 +700,16 @@ export enum LogLevel {
 
   // Exports: verify all expected exports, no keyword leakage
   const exportNames = data.exports.map((e) => e.name);
-  for (const expected of [
-    "AppConfig",
-    "Result",
-    "startServer",
-    "createConfig",
-    "VERSION",
-    "LogLevel",
-  ]) {
+  for (
+    const expected of [
+      "AppConfig",
+      "Result",
+      "startServer",
+      "createConfig",
+      "VERSION",
+      "LogLevel",
+    ]
+  ) {
     assertEquals(
       exportNames.includes(expected),
       true,

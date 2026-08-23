@@ -34,8 +34,18 @@ export function isExported(
   // method as an exported function, so missing-docs demanded JSDoc on each
   // constructor and same-name-different-params reported "constructor exists in
   // multiple files with DIFFERENT signatures", which is what a constructor is.
+  // A local binding inside a function body is not an export either, and for a
+  // stronger reason than a class member: nothing outside can reach it at all.
+  // Walking past the body found the `export` on the enclosing function and
+  // reported every closure as an exported function, so missing-docs demanded
+  // JSDoc on each private helper and orphaned-code looked for imports of names
+  // that are not importable.
+  //
+  // A declaration's own name is not inside its own body, so this cannot hide
+  // the function that owns the block.
   while (current) {
     if (current.type === "class_body") return false;
+    if (current.type === "statement_block") return false;
     if (current.type === "export_statement") return true;
     current = current.parent;
   }

@@ -6,7 +6,7 @@
 import React from "react";
 
 // Named imports
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 // Namespace import
 import * as fs from "node:fs";
@@ -18,7 +18,7 @@ import { readFile as read } from "node:fs";
 import type { FC } from "react";
 
 // Inline type import
-import { type Props, Component } from "./component";
+import { Component, type Props } from "./component";
 
 // Side-effect import
 import "./styles.css";

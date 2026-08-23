@@ -22,7 +22,7 @@ export function parseDocComment(node: SyntaxNode, _source: string): string {
   // Strip leading * on each line
   text = text
     .split("\n")
-    .map(line => line.replace(/^\s*\*\s?/, ""))
+    .map((line) => line.replace(/^\s*\*\s?/, ""))
     .join("\n");
 
   return text.trim();

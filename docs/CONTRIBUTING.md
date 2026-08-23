@@ -8,7 +8,7 @@
   - Directory structure
   - Grammar definition structure
   - Type definitions (temporary until @hiisi/viola publishes)
-  
+
 - **Phase 2**: Extraction Queries
   - Function queries (declarations, arrows, methods, generators, async)
   - String queries (literals, templates)
@@ -33,7 +33,8 @@
 
 ### 🚧 In Progress / Not Yet Implemented
 
-The transform functions are currently stubs with complete documentation and type signatures. They will be fully implemented when:
+The transform functions are currently stubs with complete documentation and type
+signatures. They will be fully implemented when:
 
 1. The Viola core framework is available
 2. Tree-sitter integration can be tested end-to-end
@@ -44,7 +45,8 @@ The transform functions are currently stubs with complete documentation and type
 This package follows the **data-first** design principle:
 
 - **Queries are primary**: Tree-sitter S-expression queries do most of the work
-- **Transforms are secondary**: Only used for genuinely complex cases that queries can't handle
+- **Transforms are secondary**: Only used for genuinely complex cases that
+  queries can't handle
 - **Types separate from logic**: All type definitions are in `src/types.ts`
 
 ## File Structure
