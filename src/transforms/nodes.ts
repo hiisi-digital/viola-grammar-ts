@@ -1,8 +1,5 @@
 import type { SyntaxNode } from "@hiisi/viola/grammars";
 
-/** Shorthand, so the signature below reads as one line. */
-type N = SyntaxNode;
-
 /**
  * The tree-sitter node types and field names these transforms match on.
  *
@@ -30,8 +27,8 @@ export const READONLY_KEYWORD = "readonly";
  * the accumulator and the null check.
  */
 export function collectNamed<T>(
-  node: { readonly namedChildren: readonly N[] } | undefined,
-  parse: (child: N) => T | null,
+  node: { readonly namedChildren: readonly SyntaxNode[] } | undefined,
+  parse: (child: SyntaxNode) => T | null,
 ): T[] {
   if (node === undefined) return [];
   const found: T[] = [];
