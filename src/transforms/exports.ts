@@ -24,9 +24,18 @@ export function isExported(
     return true;
   }
 
-  // Walk up to check for export_statement ancestor
   let current: SyntaxNode | null = node;
+  // Walk up to check for an export_statement ancestor, stopping at a class
+  // body.
+  //
+  // A class member is not itself an export. Its visibility comes from the
+  // class, and `constructor` is not a name anybody can import. Walking past
+  // the class body found the `export` on `export class Foo` and reported every
+  // method as an exported function, so missing-docs demanded JSDoc on each
+  // constructor and same-name-different-params reported "constructor exists in
+  // multiple files with DIFFERENT signatures", which is what a constructor is.
   while (current) {
+    if (current.type === "class_body") return false;
     if (current.type === "export_statement") return true;
     current = current.parent;
   }
