@@ -1,23 +1,14 @@
-# @hiisi/viola-grammar-ts
+# `viola-grammar-ts`
 
-TypeScript grammar package for the
-[Viola](https://github.com/hiisi-digital/viola) convention linter.
+> TypeScript grammar for the viola convention linter.
 
-## Overview
+A tree-sitter based grammar package for [viola](https://github.com/hiisi-digital/viola) that parses `.ts`, `.tsx`, `.mts` and `.cts` files and extracts the structured data viola's linters analyze, which is functions, types, imports, exports and strings.
 
-This package provides tree-sitter based parsing and extraction for TypeScript
-files (`.ts`, `.tsx`, `.mts`, `.cts`). It extracts structured data (functions,
-types, imports, exports, strings) that Viola linters can analyze. When a
-separate JavaScript grammar is registered, Viola's grammar relationships control
-how the two interact on shared files.
-
-## Installation
+## Usage
 
 ```bash
 deno add jsr:@hiisi/viola-grammar-ts
 ```
-
-## Usage
 
 ```typescript
 import { report, viola, when } from "@hiisi/viola";
@@ -30,175 +21,27 @@ export default viola()
   .rule(report.error, when.in("src/**"));
 ```
 
-## Supported File Extensions
+## What it extracts
 
-- `.ts` - TypeScript
-- `.tsx` - TypeScript JSX
-- `.mts` - TypeScript ES modules
-- `.cts` - TypeScript CommonJS modules
+Functions come from declarations, arrow functions, methods and generators, with the name, the parameters (types, optionality, defaults, rest and destructuring), the return type, the raw and normalized body and whether it is exported. Types are interfaces, type aliases and enums, with their fields, which covers properties, method signatures, index signatures and enum members, and the same body and exported flag. Imports give one entry per imported name, with the local alias when renamed, the source module and the type-only and namespace flags, exports give the name, the source module for re-exports and the type-only flag, and strings give the value with quotes stripped and whether it is a template.
 
-## Extracted Data
+The grammar declares a doc-comment query and a `parseDocComment` transform for JSDoc, and viola's extraction doesn't run either, so no doc-comment data reaches a linter yet.
 
-### Functions
+## Next to a JavaScript grammar
 
-All function forms are extracted:
-
-```typescript
-// function declarations
-function foo(a: string, b?: number): void {}
-
-// arrow functions
-const bar = (x: number) => x * 2;
-
-// methods
-class MyClass {
-  method(arg: string): boolean {}
-}
-
-// generator declarations
-function* generator() {
-  yield 1;
-}
-```
-
-Captured data:
-
-- Name
-- Parameters (with types, optionality, defaults, rest, destructuring)
-- Return type
-- Body (raw and normalized)
-- Exported flag
-
-### Types
-
-```typescript
-interface User {
-  name: string;
-  age?: number;
-}
-
-type Result<T> = { ok: true; value: T } | { ok: false; error: Error };
-
-enum Status {
-  Active,
-  Inactive,
-}
-```
-
-Captured data:
-
-- Name
-- Fields with types (properties, method signatures, index signatures, enum
-  members)
-- Body (raw and normalized)
-- Exported flag
-
-### Imports
-
-```typescript
-import foo from "module"; // default
-import { bar } from "module"; // named
-import { baz as qux } from "mod"; // renamed
-import * as ns from "module"; // namespace
-import type { T } from "module"; // type-only
-```
-
-Captured data (one entry per imported name):
-
-- Name (the local alias when renamed)
-- Source module
-- Type-only flag
-- Namespace flag
-
-### Exports
-
-```typescript
-export default foo;
-export { bar };
-export { baz as qux };
-export { x } from "module";
-export * from "module";
-export type { T };
-export function fn() {}
-```
-
-Captured data:
-
-- Exported name
-- Source module (for re-exports)
-- Type-only flag (for `export type { }` statements)
-
-### Strings
-
-```typescript
-const single = "hello";
-const double = "world";
-const template = `Hello, ${name}!`;
-```
-
-Captured data:
-
-- Value (quotes stripped)
-- Template flag
-
-### JSDoc
-
-```typescript
-/**
- * Calculates the sum of two numbers.
- * @param a - First number
- * @param b - Second number
- * @returns The sum
- */
-function sum(a: number, b: number): number {}
-```
-
-The grammar declares a doc-comment query (`(comment) @doc.content`) and a
-`parseDocComment` transform that strips the `/** */` markers and leading
-asterisks. Viola does not run either one: its extraction pass produces
-functions, types, imports, exports and strings only, so no doc-comment data
-reaches a linter. The query and the transform are declared against a pipeline
-stage that does not exist yet.
-
-## Grammar Relationships
-
-When a separate JavaScript grammar is also registered (under the alias `js`
-here), Viola's `grammar()` rules control how the two interact per file pattern:
+When a separate JavaScript grammar is registered too, viola's `grammar()` rules decide how the two interact on a shared file.
 
 ```typescript
 // typescript overrides javascript where both claim the file
 .rule(grammar("ts").overrides("js"), when.in("*.ts", "*.tsx"))
 ```
 
-A relationship applies only to a file both grammars already match. Viola
-resolves the matching set from each grammar's registered extensions first, and
-skips any relationship whose primary or secondary is absent from that set. This
-package registers `.ts`, `.tsx`, `.mts` and `.cts` and nothing else, so a
-relationship changes the outcome only where the JavaScript grammar claims those
-same extensions. On a `.js` or `.jsx` file this grammar is not in the matching
-set at all, and a rule naming it there has no effect.
-
-### Override Semantics
-
-When TypeScript **overrides** JavaScript on a file both match:
-
-- Only the TypeScript grammar runs
-- Full type information is extracted
-- JavaScript grammar is suppressed
-
-### Supplement Semantics
-
-When TypeScript **supplements** JavaScript on a file both match:
-
-- JavaScript grammar runs first
-- TypeScript grammar fills gaps
-- Results are merged, TypeScript data only where JS didn't capture
-
-## Requirements
-
-- Deno 2.0+
-- `@hiisi/viola` ^0.3
+With `overrides` only the TypeScript grammar runs on the file, with full type information, and with `supplements` the JavaScript grammar runs first and the TypeScript results are merged in only where it captured nothing. A relationship applies only to a file both grammars already match, and this package registers just the four TypeScript extensions, so on a `.js` or `.jsx` file a rule naming it has no effect. It needs deno 2.0 or newer and `@hiisi/viola` ^0.3.
 
 ## License
 
-MPL-2.0
+> The project is licensed under the **Mozilla Public License 2.0**.
+
+`SPDX-License-Identifier: MPL-2.0`
+
+> You can check out the full license [here](https://github.com/hiisi-digital/viola-grammar-ts/blob/main/LICENSE)
